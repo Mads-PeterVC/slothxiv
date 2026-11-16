@@ -195,6 +195,10 @@ profile using Claude CLI. It is implemented and validated offline.
   identifier. Profiles have evaluation instructions separate from retrieval terms.
 - Preserve evaluation history and provenance in SQLite and expose a readable
   terminal result including the database path.
+- CLI presentation uses Rich for terminal stdout and plain text when redirected.
+  Both commands accept `--format auto|rich|plain|markdown|json`; explicit Markdown
+  and JSON writers emit undecorated source/data. Diagnostics go to stderr.
+  These are workflow result formats, independent of future digest output writers.
 - The full scope, reuse and failure policies, and validation are recorded in
   `docs/milestones.md`. Verify Claude CLI flags and structured response handling
   before implementing the adapter.
@@ -205,7 +209,8 @@ profile using Claude CLI. It is implemented and validated offline.
 - Digest lookback defaults and timestamp semantics.
 - Whether digests repeat previously presented papers, and how explicit time-window
   requests interact with that policy.
-- Initial digest output writers; Markdown and JSON are proposed.
+- Initial digest output writers; Markdown and JSON are proposed. CLI workflow
+  result formats are already implemented and do not settle digest policies.
 - Cross-source deduplication and any future retrieval of historical revisions.
 
 ## Development guidance

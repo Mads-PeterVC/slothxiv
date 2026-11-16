@@ -72,6 +72,12 @@ Scores order the results descending, then source update time descending, then
 source-qualified identifier ascending. Weak matches are shown with their scores;
 digest thresholds and entry limits belong to a later milestone.
 
+Interactive terminals use Rich paper panels with prominent scores, separated
+metadata, and wrapped justifications. Use `--format plain`, `--format markdown`,
+or `--format json` to select undecorated output or structured application data.
+Piped output defaults to plain text. See [CLI output formats](output.md) for the
+JSON contract, file redirection, and partial-failure behavior.
+
 ## Scores and evaluation reuse
 
 Scores are integers from 0 to 100, with these relevance anchors:

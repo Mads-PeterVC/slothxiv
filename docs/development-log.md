@@ -12,6 +12,75 @@ earlier entries intact; describe later decisions in new entries and explicitly
 correct factual mistakes when necessary. Never include credentials or private
 profile contents.
 
+## 2026-11-16 — Organize implementation into focused commits
+
+### Changes and rationale
+
+- Split the accumulated work after the initial skeleton into independently usable
+  retrieval, Claude evaluation/ranking, and terminal/output-format commits. Shared
+  CLI, configuration, schema, dependency, test, and documentation changes were
+  separated using temporary snapshots while preserving the final working files.
+- Added ignore rules for the personal `dev/` directory and SQLite database files
+  and sidecars, keeping local profiles and persisted paper data out of commits.
+
+### Validation
+
+- The retrieval snapshot passed all 62 tests and its strict documentation build.
+- The evaluation snapshot passed all 112 tests and its strict documentation build.
+- The complete implementation passed all 130 tests in 3.04 seconds. Its package
+  build and strict documentation build also passed during the output follow-up.
+  An initial final-suite attempt hit uv's sandboxed cache lock; the approved
+  retry passed.
+- Final strict documentation build and `git diff --check`: passed.
+- No personal profiles, credentials, databases, virtual environments, or generated
+  build/site output are included in the commit snapshots.
+
+### Remaining questions and limitations
+
+- This change organizes existing work; evaluation/digest scope and the live-test
+  limitations recorded below remain unchanged.
+
+## 2026-11-16 — Add Rich presentation and explicit CLI output formats
+
+### Changes and rationale
+
+- Addressed the user's request for more readable terminal output with a bounded
+  presentation follow-up to milestone 2. Added Rich 14 as a runtime dependency
+  via uv and updated the lockfile.
+- Extracted result writers from command handlers into `slothxiv.output`.
+  Interactive stdout defaults to Rich paper panels with prominent scores,
+  wrapped justifications, separated metadata/keywords, and reuse indicators.
+  Redirected stdout defaults to plain text.
+- Added `--format auto|rich|plain|markdown|json` to both commands. Explicit plain
+  and Markdown source bypass Rich rendering; JSON emits one structured object
+  containing the database path and complete ranking or retrieval run. Diagnostics
+  remain on stderr, including when partial ranking failures produce valid JSON
+  and exit nonzero. Fatal errors produce no result on stdout.
+- Treat paper and agent text as literal Rich text and escape Markdown metadata.
+  Documented format selection, downstream data shapes, stderr/exit behavior,
+  and the distinction between workflow results and future digest output writers.
+  No retrieval, scoring, persistence, or personal profile behavior was changed.
+
+### Validation
+
+- `uv run --group dev pytest`: 130 passed in 2.72 seconds. Added coverage for
+  CLI formats, structured scrape output, partial-failure JSON, stdout/stderr
+  separation, terminal detection, metadata escaping, and 40/80/120-column layouts.
+- Inspected a synthetic 80-column Rich rendering with a long title,
+  justification, keywords, and reused evaluation. No live source or model calls.
+- `uv build`: source distribution and wheel built successfully.
+- `uv run --group docs zensical build --strict`: passed with no issues.
+- `git diff --check`: passed. Adding the dependency initially hit the sandboxed
+  uv cache lock; the approved retry installed Rich and updated the lockfile.
+
+### Remaining questions and limitations
+
+- This follow-up is complete; digest construction and historical-run export
+  remain outside scope. JSON retrieval reports a run, not all fetched paper data.
+- Choosing a format still runs the requested workflow; matching ranking results
+  are reused unless forced. JSON consumers should check exit status and handle
+  empty stdout for fatal errors before a result exists.
+
 ## 2026-11-16 — Complete milestone 2 evaluation, ranking, and history
 
 ### Changes and rationale

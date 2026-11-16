@@ -1,4 +1,5 @@
 from io import BytesIO
+import json
 from pathlib import Path
 import subprocess
 import sys
@@ -45,6 +46,19 @@ def test_explicit_database_overrides_config(tmp_path, monkeypatch, arxiv_page):
     main(["scrape", "--config", str(config), "--database", str(database), "--profile", "graphs"])
     assert database.exists()
     assert not (tmp_path / "state").exists()
+
+
+def test_scrape_json_output(tmp_path, monkeypatch, capsys, arxiv_page):
+    import slothxiv.sources.arxiv as arxiv
+
+    config = tmp_path / "config.toml"
+    write_config(config)
+    monkeypatch.setattr(arxiv, "urlopen", lambda request, timeout: BytesIO(arxiv_page([])))
+    main(["scrape", "--config", str(config), "--profile", "graphs", "--format", "json"])
+    output = json.loads(capsys.readouterr().out)
+    assert output["retrieval"]["status"] == "completed"
+    assert output["retrieval"]["observation_count"] == 0
+    assert output["database"] == str(tmp_path / "state/papers.db")
 
 
 def test_cli_source_failure_has_nonzero_exit_and_persisted_run(tmp_path, monkeypatch, capsys):

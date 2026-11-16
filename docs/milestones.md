@@ -202,6 +202,46 @@ establish the supported invocation contract; actual provider execution and score
 quality remain to be checked in an explicitly requested live trial. Alias reuse
 cannot detect an underlying provider model change without a fresh invocation.
 
+## Milestone 2 follow-up — Readable terminal and explicit result formats
+
+Completed on 2026-11-16. See [CLI output formats](output.md).
+
+### Intended outcome and scope
+
+Make existing `rank` and `scrape` results readable interactively using Rich,
+while supporting explicit plain, Markdown, and raw structured JSON results for
+downstream use. This follows the user's request after milestone 2; it does not
+change evaluation or retrieval policies.
+
+Included work: Rich as a runtime dependency, separate presentation writers,
+`--format auto|rich|plain|markdown|json`, automatic Rich selection for terminal
+stdout and plain selection for redirection, stderr diagnostics, documentation,
+and offline verification. No digest construction, new selection policies,
+schema changes, or arbitrary historical-run export are included.
+
+### Acceptance criteria and validation
+
+- Rich paper panels make scores, metadata, justifications, keywords, and reuse
+  status easy to distinguish and wrap at narrow terminal widths.
+- Plain and Markdown source output bypass Rich presentation. JSON stdout is one
+  complete result object without a human summary or ANSI styling.
+- External metadata is displayed literally in Rich and escaped in Markdown.
+- Partial failures retain successful results, machine-readable failure details,
+  stderr diagnostics, and nonzero exit status.
+- Offline tests cover writer content, narrow rendering, terminal detection,
+  CLI format selection, structured scrape output, and partial-failure JSON.
+  Run the full pytest suite and strict documentation build; inspect a sample
+  Rich rendering and build the package.
+
+### Completion evidence
+
+- `uv run --group dev pytest`: 130 passed in 2.72 seconds.
+- `uv build`: source distribution and wheel built successfully with Rich.
+- `uv run --group docs zensical build --strict`: passed with no issues.
+- Inspected a synthetic 80-column Rich ranking; automated rendering checks cover
+  40-, 80-, and 120-column layouts, literal metadata, and unstyled JSON/Markdown.
+- `git diff --check`: passed. No live retrieval or model calls were made.
+
 ## Later milestones
 
 Digest selection and rendering follow evaluation. Their concrete scope, timestamp

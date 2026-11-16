@@ -13,3 +13,8 @@ wheels/
 # Generated documentation
 site/
 .cache/
+
+# Personal development profiles and local paper databases
+/dev/
+*.sqlite3
+*.sqlite3-*

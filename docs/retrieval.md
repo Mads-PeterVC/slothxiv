@@ -45,6 +45,10 @@ slothxiv scrape --config /absolute/path/to/config.toml --profile graphs
 required positive integer; there is no default duration. Each profile must have
 at least one category or keyword. Unknown configuration keys are rejected.
 
+The result uses Rich in an interactive terminal and plain text when redirected.
+`--format plain`, `--format markdown`, and `--format json` select explicit
+[output formats](output.md); JSON contains the database path and retrieval run.
+
 Categories match any listed category. Keywords match any listed keyword in the
 title or abstract. When both groups are supplied, both groups must match.
 Multiword keywords are sent as quoted phrases; matching follows arXiv's search

@@ -45,6 +45,11 @@ evaluations persist and are reused when inputs match; `--force` preserves histor
 while evaluating again. See the [ranking guide](docs/ranking.md) for configuration,
 execution prerequisites, selection, reuse, failures, and library use.
 
+Interactive output uses Rich for readable paper panels. Use `--format plain`,
+`--format markdown`, or `--format json` for undecorated or structured output;
+redirected output defaults to plain text. See [CLI output formats](docs/output.md)
+for downstream usage and error handling.
+
 Project requirements and agent instructions are in [AGENTS.md](AGENTS.md).
 Development context is recorded in the [development log](docs/development-log.md).
 

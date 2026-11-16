@@ -293,6 +293,44 @@ def test_rank_cli_partial_failure_exit(tmp_path, monkeypatch, arxiv_page, capsys
     assert "authentication" in output.err
 
 
+@pytest.mark.parametrize("format", ["json", "markdown", "plain", "rich"])
+def test_cli_output_formats(tmp_path, monkeypatch, arxiv_page, capsys, format):
+    fake_cli(tmp_path, monkeypatch)
+    database = tmp_path / "history.db"
+    config = tmp_path / "config.toml"
+    write_config(config, database)
+    with SQLiteStore(database) as store:
+        seed(store, papers(arxiv_page))
+    main(["rank", "--config", str(config), "--profile", "graphs", "--limit", "1", "--format", format])
+    output = capsys.readouterr()
+    assert output.err == ""
+    if format == "json":
+        value = json.loads(output.out)
+        assert value["ranking"]["run"]["status"] == "completed"
+        assert value["ranking"]["entries"][0]["evaluation"]["response"]["result"]["score"] == 75
+    elif format == "markdown":
+        assert "# Paper ranking: graphs" in output.out and "**Score:** 75/100" in output.out
+    else:
+        assert "75/100" in output.out
+
+
+def test_cli_failed_ranking_still_emits_valid_json(tmp_path, monkeypatch, arxiv_page, capsys):
+    fake_cli(tmp_path, monkeypatch, mode="partial")
+    database = tmp_path / "history.db"
+    config = tmp_path / "config.toml"
+    write_config(config, database)
+    with SQLiteStore(database) as store:
+        seed(store, papers(arxiv_page))
+    with pytest.raises(SystemExit) as caught:
+        main(["rank", "--config", str(config), "--profile", "graphs", "--format", "json"])
+    assert caught.value.code == 1
+    output = capsys.readouterr()
+    value = json.loads(output.out)
+    assert value["ranking"]["run"]["status"] == "failed"
+    assert len(value["ranking"]["failures"]) == len(value["ranking"]["entries"]) == 1
+    assert "authentication" in output.err
+
+
 def test_rank_cli_missing_instructions_does_not_create_database(tmp_path):
     config = tmp_path / "config.toml"
     config.write_text('[profiles.graphs]\nlookback_days=1\n[profiles.graphs.arxiv]\nkeywords=["graphs"]')

@@ -7,6 +7,7 @@ nav = [
     { "Home" = "index.md" },
     { "Retrieval" = "retrieval.md" },
     { "Ranking" = "ranking.md" },
+    { "CLI output" = "output.md" },
     { "Milestones" = "milestones.md" },
     { "Development log" = "development-log.md" },
 ]

@@ -3,7 +3,6 @@
 import argparse
 from pathlib import Path
 import sqlite3
-import sys
 
 from pydantic import ValidationError
 
@@ -11,6 +10,7 @@ from slothxiv.application import ScrapeError, scrape
 from slothxiv.config import default_config_path, default_database_path, load_config
 from slothxiv.storage.sqlite import SQLiteStore
 from slothxiv.evaluation.workflow import RankError, rank
+from slothxiv.output import TerminalOutput
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -24,7 +24,10 @@ def main(argv: list[str] | None = None) -> None:
         subcommand.add_argument("--profile", required=True)
         subcommand.add_argument("--config", type=Path, help=f"TOML file (default: {default_config_path()})")
         subcommand.add_argument("--database", type=Path, help=f"SQLite path (default: {default_database_path()})")
+        subcommand.add_argument("--format", choices=("auto", "rich", "plain", "markdown", "json"),
+                                default="auto", help="Output format (default: rich in a terminal, plain when piped)")
     args = parser.parse_args(argv)
+    output = TerminalOutput(args.format)
     try:
         config = load_config(args.config)
         if args.profile not in config.profiles:
@@ -42,30 +45,20 @@ def main(argv: list[str] | None = None) -> None:
                 result = scrape(args.profile, profile, store)
             else:
                 ranked = rank(args.profile, profile, store, limit=args.limit, force=args.force)
-        print(f"Database: {database_path}")
         if args.command == "scrape":
-            print(f"Completed run {result.run_id}: {result.observation_count} paper revision(s) observed")
+            output.scrape(result, database_path)
         else:
-            print(f"Run {ranked.run.run_id}: {ranked.run.status}; "
-                  f"{len(ranked.entries)} ranked, {len(ranked.failures)} failed")
-            for position, entry in enumerate(ranked.entries, 1):
-                paper = entry.evaluation.paper
-                evaluation = entry.evaluation.response.result
-                reused = " (reused)" if entry.reused else ""
-                print(f"{position}. {evaluation.score}/100 {paper.title}{reused}")
-                print(f"   {paper.paper_id} revision {paper.revision} — {paper.url}")
-                print(f"   {evaluation.justification}")
-                print(f"   Generated keywords: {', '.join(evaluation.generated_keywords)}")
+            output.ranking(ranked, database_path)
             for paper_id, error in ranked.failures.items():
-                print(f"slothxiv: {paper_id}: {error}", file=sys.stderr)
+                output.error(f"{paper_id}: {error}")
             if ranked.failures:
                 raise SystemExit(1)
     except (ScrapeError, RankError) as error:
-        print(f"slothxiv: {error}: {error.__cause__}", file=sys.stderr)
+        output.error(f"{error}: {error.__cause__}")
         raise SystemExit(1) from error
     except (OSError, ValueError, sqlite3.Error, RuntimeError, ValidationError) as error:
-        print(f"slothxiv: {error}", file=sys.stderr)
+        output.error(str(error))
         raise SystemExit(1) from error
     except KeyboardInterrupt:
-        print("slothxiv: interrupted", file=sys.stderr)
+        output.error("interrupted")
         raise SystemExit(130) from None
