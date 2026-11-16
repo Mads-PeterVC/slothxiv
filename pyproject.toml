@@ -1,0 +1,29 @@
+[project]
+name = "slothxiv"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Mads-Peter Verner Christiansen", email = "mpvc@bio.aau.dk" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+slothxiv = "slothxiv:main"
+
+[build-system]
+requires = ["uv_build>=0.13.5,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]
+docs = [
+    "zensical>=0.1.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--import-mode=importlib", "--strict-config", "--strict-markers"]

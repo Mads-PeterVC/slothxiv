@@ -1,0 +1,9 @@
+[project]
+site_name = "slothxiv"
+site_description = "Research paper discovery and ranking — project documentation and development history."
+docs_dir = "docs"
+site_dir = "site"
+nav = [
+    { "Home" = "index.md" },
+    { "Development log" = "development-log.md" },
+]
