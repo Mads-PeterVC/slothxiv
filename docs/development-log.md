@@ -12,6 +12,122 @@ earlier entries intact; describe later decisions in new entries and explicitly
 correct factual mistakes when necessary. Never include credentials or private
 profile contents.
 
+## 2026-11-16 — Complete milestone 2 evaluation, ranking, and history
+
+### Changes and rationale
+
+- Added optional validated per-profile evaluation instructions, configurable
+  Claude model selection (Sonnet initially), and a configurable 120-second default
+  per-paper timeout. Existing retrieval-only configurations remain valid.
+- Added provider-independent evaluation requests/results, versioned Markdown
+  prompts separating research instructions from untrusted JSON paper metadata,
+  integer 0–100 scoring anchors, justifications, and generated keywords.
+- Implemented Claude CLI subprocess execution using explicit model and structured
+  output/schema flags, stdin content, safe mode, no tools/MCP/session persistence,
+  noninteractive permissions, and an isolated working directory. Checked against
+  installed Claude Code 2.1.325 help and official CLI/headless documentation.
+  Safe mode retains existing authentication; bare mode would require API-key auth.
+- Added schema 2 as a separate ordered migration preserving retrieval history.
+  Runs snapshot profile/agent configuration, prompt version, candidate count,
+  options, timestamps, and status. Attempts preserve requests, reuse keys,
+  successes/failures, and reported model identities. Run entries record reused
+  and new evaluations without overwriting previous results.
+- Added library ranking and the thin `rank` CLI with candidate limits and forced
+  re-evaluation. Candidate selection uses latest stored revisions; score ordering,
+  reuse, partial failure continuation, interruption handling, and fatal storage
+  error handling follow the agreed policies. Both commands show the database path.
+- Added the ranking guide, README/site navigation updates, acceptance evidence,
+  and current instruction updates. Personal profiles and storage were untouched.
+
+### Validation
+
+- `uv run --group dev pytest`: 112 passed in 2.49 seconds. Tests include fixture
+  agent executables through real subprocesses and SQLite, installed entry-point
+  ranking outside the checkout, reuse and model changes, forced re-evaluation,
+  malformed/mismatched/duplicate output, authentication/nonzero exits, timeouts,
+  interruptions, abandoned runs, partial/fatal failures, provenance, and schema 1
+  migration. All tests are offline and require no installed Claude or credentials.
+- `uv build`: source distribution and wheel built successfully. The initial
+  sandboxed build could not acquire uv's cache lock; approved retries succeeded.
+- Installed the wheel offline as an isolated uv tool with Python 3.12 and
+  temporary tool/bin directories; `slothxiv rank --help` passed outside the repo.
+- `uv run --group docs zensical build --strict`: passed with no issues.
+- `git diff --check`: passed.
+
+### Remaining questions and limitations
+
+- Milestone 2 is complete; digest generation and the overall project remain
+  incomplete. A live Claude trial was not run and must be explicitly requested.
+- Model aliases can change underlying versions; reuse compares configured model
+  identity and cannot detect a provider alias change without a fresh invocation.
+- No slothxiv automatic retries, concurrency, PDF evaluation, history command,
+  abandoned-run recovery, or digest output was added. Claude itself may retry
+  internally. Scoring quality remains to be assessed with live profile examples.
+- Managed Claude policies still apply. Compatible CLI flags are prerequisites;
+  older incompatible installations fail with their diagnostics.
+
+## 2026-11-16 — Finalize evaluation policies and configurable Claude model
+
+### Changes and rationale
+
+- Recorded approval of the proposed prerequisites, noninteractive execution with
+  no agent tools, configurable per-paper timeout, continuation after individual
+  failures, trial candidate ordering, and score calibration anchors.
+- Recorded Sonnet as the initial model with configurable model selection so Opus
+  or another supported Claude model can be chosen without code changes. Model
+  selection belongs in provenance and reuse matching; switching models requires
+  evaluations for the newly selected model rather than reusing the old model's
+  results. Reported model identity is preserved where available.
+- Updated `AGENTS.md` and `docs/milestones.md` to separate agreed policy from CLI
+  contract verification and configuration naming during implementation. No runtime
+  code was changed; milestone 2 remains unimplemented.
+
+### Validation
+
+- Reviewed documentation against the user's accepted proposals and explicit
+  requirement for configurable Sonnet/Opus selection.
+- `uv run --group docs zensical build --strict`: passed with no issues.
+- `git diff --check`: passed. Runtime tests were not run for this documentation-only
+  change.
+
+### Remaining questions and limitations
+
+- Verify concrete Claude CLI flags and structured output before implementing the
+  adapter. Exact configuration keys/options and the timeout value are implementation
+  details to document. Model aliases do not guarantee fixed underlying versions.
+- Digest scope and future user-rating behavior remain undecided.
+
+## 2026-11-16 — Agree milestone 2 evaluation scope and Claude CLI
+
+### Changes and rationale
+
+- Recorded the user's agreement to evaluate and rank stored profile candidates
+  as milestone 2, with Claude CLI as the first adapter. Added bounded scope,
+  exclusions, acceptance criteria, and validation to `docs/milestones.md`.
+- Recorded integer 0–100 scoring, latest stored revisions without an additional
+  date window, sequential one-paper invocations, matching-input reuse, explicit
+  re-evaluation, preserved history, partial-failure reporting, deterministic
+  ranking, and an optional trial limit. Terminal results will show the database
+  path to make persistence easier to locate.
+- Updated `AGENTS.md` to distinguish agreed evaluation policies from remaining
+  decisions. No evaluation implementation or personal data was changed.
+
+### Validation
+
+- `uv run --group docs zensical build --strict`: passed with no issues. The
+  initial sandboxed attempt could not acquire the uv cache lock; the approved
+  retry with cache access succeeded.
+- Reviewed the milestone against the accepted proposal and Claude CLI choice.
+  Runtime tests were not run for this documentation-only change.
+
+### Remaining questions and limitations
+
+- Milestone 2 is agreed but not implemented. Claude CLI execution prerequisites,
+  model selection, permissions, timeout and response contract, score calibration,
+  exact options, trial candidate ordering, and per-paper failure continuation
+  still need resolution before dependent implementation.
+- Digest policies and subsequent milestone scopes remain undecided.
+
 ## 2026-11-16 — Complete milestone 1 retrieval and SQLite history
 
 ### Changes and rationale

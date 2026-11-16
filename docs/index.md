@@ -2,11 +2,13 @@
 
 slothxiv retrieves arXiv papers for named research profiles and preserves papers,
 revisions, and retrieval history in SQLite. The `scrape` command and matching
-library workflow are implemented. See the [retrieval guide](retrieval.md) for
-installation, configuration, and use.
+library workflow are implemented. Claude CLI evaluation and the `rank` command
+score stored candidates and preserve evaluation history. See the
+[retrieval guide](retrieval.md) and [ranking guide](ranking.md) for installation,
+configuration, and use.
 
-LLM evaluation, ranking, and structured digest generation are planned for later
-milestones. Full-paper evaluation and a GUI are outside the initial scope.
+Structured digest generation is planned for a later milestone. Full-paper
+evaluation and a GUI are outside the initial scope.
 
 ## Project memory
 

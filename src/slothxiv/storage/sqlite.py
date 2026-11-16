@@ -9,6 +9,7 @@ from uuid import uuid4
 from slothxiv.config import Profile
 from slothxiv.models import Paper, RetrievalRun, RetrievalWindow
 from slothxiv.storage.migrations import migrate
+from slothxiv.storage.evaluations import SQLiteEvaluations
 
 
 def timestamp(value: datetime) -> str:
@@ -17,7 +18,7 @@ def timestamp(value: datetime) -> str:
     return value.astimezone(UTC).isoformat()
 
 
-class SQLiteStore:
+class SQLiteStore(SQLiteEvaluations):
     def __init__(self, path: Path) -> None:
         self.path = path.expanduser().resolve()
         self.path.parent.mkdir(parents=True, exist_ok=True)

@@ -30,7 +30,28 @@ MIGRATIONS: tuple[tuple[str, ...], ...] = ((
         FOREIGN KEY (source, source_id, revision)
             REFERENCES paper_revisions(source, source_id, revision))""",
     "CREATE INDEX revision_updates ON paper_revisions(updated_at)",
-),)
+), (
+    """CREATE TABLE evaluation_runs (
+        run_id TEXT PRIMARY KEY, profile_name TEXT NOT NULL,
+        profile_json TEXT NOT NULL, agent_json TEXT NOT NULL,
+        prompt_version TEXT NOT NULL, started_at TEXT NOT NULL, finished_at TEXT,
+        candidate_count INTEGER NOT NULL, options_json TEXT NOT NULL,
+        status TEXT NOT NULL CHECK(status IN ('running','completed','failed')), error TEXT)""",
+    """CREATE TABLE evaluations (
+        evaluation_id TEXT PRIMARY KEY, run_id TEXT NOT NULL,
+        reuse_key TEXT NOT NULL, request_json TEXT NOT NULL,
+        started_at TEXT NOT NULL, finished_at TEXT,
+        status TEXT NOT NULL CHECK(status IN ('running','completed','failed')),
+        record_json TEXT, error TEXT,
+        FOREIGN KEY(run_id) REFERENCES evaluation_runs(run_id))""",
+    "CREATE INDEX evaluation_reuse ON evaluations(reuse_key, status)",
+    """CREATE TABLE evaluation_run_entries (
+        run_id TEXT NOT NULL, paper_id TEXT NOT NULL, evaluation_id TEXT NOT NULL,
+        reused INTEGER NOT NULL CHECK(reused IN (0,1)),
+        PRIMARY KEY(run_id, paper_id),
+        FOREIGN KEY(run_id) REFERENCES evaluation_runs(run_id),
+        FOREIGN KEY(evaluation_id) REFERENCES evaluations(evaluation_id))""",
+))
 
 
 def migrate(connection: sqlite3.Connection) -> None:

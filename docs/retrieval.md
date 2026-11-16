@@ -1,7 +1,8 @@
 # Retrieving papers
 
-Milestone 1 provides arXiv retrieval and SQLite history. Evaluation, ranking, and
-digest generation are planned for later milestones and are not available yet.
+Milestone 1 provides arXiv retrieval and SQLite history. Milestone 2 adds
+[evaluation and ranking](ranking.md) through Claude CLI. Digest generation is
+planned for a later milestone and is not available yet.
 
 ## Install
 

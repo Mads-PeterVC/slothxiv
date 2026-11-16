@@ -3,7 +3,22 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from slothxiv.config import ArxivSettings, Configuration, Profile, load_config
+from slothxiv.config import ArxivSettings, Configuration, EvaluationSettings, Profile, load_config
+
+
+def test_evaluation_model_selection_and_defaults():
+    assert EvaluationSettings(instructions="graphs").model == "sonnet"
+    assert EvaluationSettings(instructions="graphs", model="opus").model == "opus"
+    assert Profile(lookback_days=1, arxiv=ArxivSettings(keywords=("graphs",))).evaluation is None
+
+
+@pytest.mark.parametrize("changes", [
+    {"instructions": " "}, {"model": " "}, {"timeout_seconds": 0},
+    {"timeout_seconds": True}, {"timeout_seconds": 1.5}, {"timeout_seconds": "120"},
+])
+def test_invalid_evaluation_configuration(changes):
+    with pytest.raises(ValidationError):
+        EvaluationSettings.model_validate({"instructions": "graphs", **changes})
 
 
 def test_load_relative_database_independent_of_cwd(tmp_path, monkeypatch):

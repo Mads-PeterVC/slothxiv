@@ -6,11 +6,13 @@ slothxiv is a Python tool for finding, evaluating, and ranking research papers
 according to a user's research interests. It should support an unattended command
 that fetches candidates, evaluates them using an LLM, and produces a digest.
 
-Milestone 1 is complete: named-profile arXiv retrieval and SQLite history are
-implemented and validated offline. This document records the agreed direction;
-it does not authorize implementing the entire roadmap. Discuss unresolved product
-decisions before implementing behavior that depends on them. Keep this document
-current as decisions are made.
+Milestones 1 and 2 are complete: named-profile arXiv retrieval, Claude CLI
+evaluation/ranking, and SQLite history are implemented and validated offline.
+This document records the agreed direction;
+it does not authorize
+implementing the entire roadmap. Discuss unresolved product decisions before
+implementing behavior that depends on them. Keep this document current as
+decisions are made.
 
 ## First working version
 
@@ -79,8 +81,8 @@ storage, or digest rendering.
 Put LLM execution behind an interface with structured requests and results.
 The initial approach invokes headless CLI agents through subprocesses, with
 `ClaudeCLIAgent` and `CodexCLIAgent` as intended adapters. Direct API adapters,
-such as `ClaudeAPIAgent`, may follow later. The first adapter to implement has not
-yet been selected.
+such as `ClaudeAPIAgent`, may follow later. Claude CLI is the agreed first adapter
+for milestone 2, using configurable model selection with Sonnet initially.
 
 - Build Markdown prompts containing profile criteria and identified candidate
   papers from the retrieval stage.
@@ -93,7 +95,11 @@ yet been selected.
 - Keep subprocess invocation, timeouts, failure handling, and provider-specific
   output formats inside the adapters. Avoid shell interpolation of paper content.
 - Do not couple the core models to one provider's SDK or CLI response format.
-- Decide batching, retry, and evaluation reuse policies before implementing them.
+- Milestone 2 uses sequential, one-paper invocations, no automatic retries, and
+  reuse of successful evaluations when paper content, evaluation instructions,
+  prompt version, and agent/model configuration match. Explicit forced
+  re-evaluation preserves earlier results. Partial failures preserve successful
+  evaluations, record failures, and cause a nonzero exit.
 
 ### Models and configuration
 
@@ -166,15 +172,40 @@ The agreed scope and validation are recorded in `docs/milestones.md`.
 Prepare sensible boundaries for these features without implementing them early
 or introducing speculative frameworks.
 
+## Agreed evaluation milestone choices
+
+Milestone 2 evaluates and ranks stored papers for an explicitly selected
+profile using Claude CLI. It is implemented and validated offline.
+
+- Evaluate the latest stored source revision of each associated paper, with no
+  additional date window initially; support an optional candidate limit for trials.
+- Use integer relevance scores from 0 to 100, justifications, and generated
+  keywords, keeping source keywords distinct. Calibration anchors are 0 unrelated,
+  25 tangential, 50 moderately relevant, 75 strongly relevant, and 100 directly
+  addressing the profile's central interests.
+- Require Claude CLI installed and authenticated beforehand. Run noninteractively
+  with no agent tools, an explicitly configured model (Sonnet initially, changeable
+  to Opus or another supported model), and a configurable per-paper timeout.
+  Authentication requirements must fail clearly. Record model selection in
+  provenance and reuse matching; preserve reported model identity when available.
+- Continue after individual evaluation failures while retaining successes and
+  reporting a nonzero exit. Apply trial limits after sorting candidates by source
+  update time descending, then source-qualified identifier.
+- Rank by score descending, source update time descending, then source-qualified
+  identifier. Profiles have evaluation instructions separate from retrieval terms.
+- Preserve evaluation history and provenance in SQLite and expose a readable
+  terminal result including the database path.
+- The full scope, reuse and failure policies, and validation are recorded in
+  `docs/milestones.md`. Verify Claude CLI flags and structured response handling
+  before implementing the adapter.
+
 ## Decisions still to resolve
 
-- Initial CLI agent adapter, supported invocation contract, and prerequisites.
-- Numerical score range and calibration guidance shared with user ratings.
+- Future alignment of user ratings with the agreed evaluation score guidance.
 - Digest lookback defaults and timestamp semantics.
 - Whether digests repeat previously presented papers, and how explicit time-window
   requests interact with that policy.
 - Initial digest output writers; Markdown and JSON are proposed.
-- Evaluation batching, retries, caching/reuse, and partial-run behavior.
 - Cross-source deduplication and any future retrieval of historical revisions.
 
 ## Development guidance

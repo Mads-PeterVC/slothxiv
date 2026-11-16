@@ -1,7 +1,7 @@
 [project]
 name = "slothxiv"
 version = "0.1.0"
-description = "Retrieve research papers for named profiles and preserve discovery history"
+description = "Retrieve and rank research papers for named profiles with persistent history"
 readme = "README.md"
 authors = [
     { name = "Mads-Peter Verner Christiansen", email = "mpvc@bio.aau.dk" }

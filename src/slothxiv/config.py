@@ -33,9 +33,16 @@ class ArxivSettings(Model):
         return self
 
 
+class EvaluationSettings(Model):
+    instructions: NonEmpty
+    model: NonEmpty = "sonnet"
+    timeout_seconds: Annotated[int, Field(strict=True, gt=0, le=86400)] = 120
+
+
 class Profile(Model):
     lookback_days: Annotated[int, Field(strict=True, gt=0, le=365000)]
     arxiv: ArxivSettings
+    evaluation: EvaluationSettings | None = None
 
 
 class StorageSettings(Model):

@@ -1,4 +1,4 @@
-"""Research paper retrieval and persistent history."""
+"""Research paper retrieval, evaluation, and persistent history."""
 
 from slothxiv.cli import main
 
