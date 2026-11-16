@@ -12,6 +12,130 @@ earlier entries intact; describe later decisions in new entries and explicitly
 correct factual mistakes when necessary. Never include credentials or private
 profile contents.
 
+## 2026-11-16 — Complete milestone 1 retrieval and SQLite history
+
+### Changes and rationale
+
+- Implemented Pydantic TOML profiles, platform user paths, explicit profile and
+  lookback settings, and CLI/configuration database overrides. Relative TOML
+  database paths resolve against the configuration file.
+- Added source-independent paper, window, and run models, a small source protocol,
+  and an arXiv adapter with phrase queries, Atom validation, preserved original
+  metadata, explicit revision identity, pagination, request pacing, and timeout.
+- arXiv documents update-time sorting but only submission-date filtering. The
+  adapter scans by descending update time and applies the agreed UTC window
+  locally, preserving eligibility of updates to older papers. Result caps and
+  detected pagination inconsistencies fail rather than silently truncate a run.
+- Added a SQLite store protocol/implementation and ordered transactional schema
+  migrations. Paper revisions are deduplicated while per-run observation snapshots,
+  stable profile associations, configuration snapshots, and failure history persist.
+  Each observation commits atomically; later failures retain earlier observations.
+- Added library orchestration and the thin `slothxiv scrape` CLI. Empty retrievals
+  complete successfully; failures exit nonzero and preserve run identity. Abrupt
+  termination can leave a run running, never falsely completed.
+- Added fixture-based unit/integration tests with blocked network connections,
+  an installed-entry-point subprocess check, and a retrieval guide. Updated the
+  README, documentation site, milestone status, and package description. Added
+  Pydantic, platformdirs, and defusedxml runtime dependencies through uv.
+
+### Validation
+
+- `uv run --group dev pytest`: 62 passed in 1.04 seconds. Earlier test iterations
+  exposed two test-harness errors (exception run-ID access and a subprocess HTTP
+  fixture path); both were corrected before the passing full run.
+- `uv build`: source distribution and wheel built successfully.
+- Installed the built wheel using `uv tool install --offline --python` with the
+  project's Python 3.12, temporary tool/bin directories, and cached dependencies;
+  the installed `slothxiv scrape --help` succeeded outside the repository. The
+  initial offline attempt without a pinned interpreter lacked cached compatible
+  dependency wheels; selecting Python 3.12 resolved that validation limitation.
+- `uv run --group docs zensical build --strict`: passed with no issues.
+- `git diff --check`: passed.
+- uv workflows required access to the cache outside the sandbox and ran with
+  approval. No personal configuration, database, or tool installation was created.
+
+### Remaining questions and limitations
+
+- Milestone 1 is complete; the overall ranking/digest project is not complete.
+- No live arXiv requests were made. Broad searches can require many requests,
+  remote pagination is not a transactional snapshot, and request pacing is local
+  to each adapter instance. Retrieval has no automatic retries.
+- History inspection is available through library run/paper methods and SQLite;
+  a history CLI, live backups, and recovery of abandoned runs are not included.
+- Later milestones still need scope and decisions covering LLM execution,
+  evaluation policies, score calibration, digest selection, and output writers.
+
+## 2026-11-16 — Finalize retrieval query and window rules
+
+### Changes and rationale
+
+- Recorded the user's approval of any-category AND any-keyword matching, with
+  keyword searches over titles and abstracts and either group usable alone.
+- Recorded the UTC window `[run_started_at - lookback, run_started_at)`, anchored
+  once per run, including its start and excluding its end.
+- Updated `AGENTS.md` and `docs/milestones.md` to remove the corresponding open
+  decisions. This completes the behavior decisions identified for milestone 1.
+
+### Validation
+
+- `uv run --group docs zensical build --strict`: passed with no issues after
+  approval to access uv's cache outside the workspace.
+- `git diff --check`: passed.
+
+### Remaining questions and limitations
+
+- Milestone 1 implementation and acceptance validation remain outstanding.
+- Digest window semantics and other later milestone policies remain undecided.
+
+## 2026-11-16 — Agree remaining concrete retrieval proposals
+
+### Changes and rationale
+
+- Recorded approval of TOML, platform-appropriate directories and path overrides,
+  ordered SQLite migrations, explicit profile selection and configured lookback,
+  source update timestamps with UTC boundaries, and observed revision preservation.
+- Updated `AGENTS.md` and `docs/milestones.md` to distinguish these agreements
+  from behavior not actually specified in the earlier proposals: query composition
+  and exact time-boundary inclusion.
+- Proposed concrete query rules and a half-open window anchored to run start for
+  resolution before dependent implementation. No retrieval code was added.
+
+### Validation
+
+- `uv run --group docs zensical build --strict`: passed with no issues after
+  approval to access uv's cache outside the workspace.
+- `git diff --check`: passed.
+
+### Remaining questions and limitations
+
+- Query composition/search fields and exact time boundaries await resolution.
+- Later milestone scopes and LLM/digest policies remain undecided.
+
+## 2026-11-16 — Agree retrieval milestone and SQLite storage
+
+### Changes and rationale
+
+- Recorded SQLite as the agreed initial backend in `AGENTS.md`; schema migration
+  design remains open. SQLite suits the intended local CLI and future lightweight
+  GUI without requiring users to operate a database server.
+- Added `docs/milestones.md` and site navigation for the agreed first milestone:
+  retrieve arXiv papers for a named profile and persist retrieval history.
+- Defined scope, exclusions, acceptance criteria, and validation while explicitly
+  retaining unapproved configuration, time-window, query, revision, profile
+  selection, and migration choices as proposals.
+
+### Validation
+
+- `uv run --group docs zensical build --strict`: passed with no issues after
+  approval to access uv's cache outside the workspace.
+- Reviewed the documentation diff to distinguish agreed decisions from proposals.
+
+### Remaining questions and limitations
+
+- The application remains a skeleton; no retrieval or storage code was added.
+- Milestone behavior choices listed in `docs/milestones.md` remain to be resolved
+  before dependent implementation. Later milestone scopes are still proposals.
+
 ## 2026-11-16 — Require bounded implementation milestones
 
 ### Changes and rationale

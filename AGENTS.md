@@ -6,7 +6,8 @@ slothxiv is a Python tool for finding, evaluating, and ranking research papers
 according to a user's research interests. It should support an unattended command
 that fetches candidates, evaluates them using an LLM, and produces a digest.
 
-The project is currently in design. This document records the agreed direction;
+Milestone 1 is complete: named-profile arXiv retrieval and SQLite history are
+implemented and validated offline. This document records the agreed direction;
 it does not authorize implementing the entire roadmap. Discuss unresolved product
 decisions before implementing behavior that depends on them. Keep this document
 current as decisions are made.
@@ -130,7 +131,28 @@ they were scored, and how results change over time.
   results as successful completed runs.
 - Keep storage access behind a clear boundary and plan for schema evolution.
 
-SQLite is the proposed initial storage backend; it has not yet been finalized.
+SQLite is the agreed initial storage backend, with a schema version and ordered
+migrations from the first schema.
+
+### Agreed retrieval milestone choices
+
+- Use TOML configuration, platform-appropriate user configuration/data directories,
+  and explicit path overrides. Exact filenames and paths will be documented with
+  the implementation.
+- Require explicit `--profile` selection initially.
+- Require an explicit configured retrieval lookback window; do not invent a
+  default duration.
+- Use source update time for retrieval eligibility, with timezone-aware UTC
+  boundaries; record local retrieval time separately. Use
+  `[run_started_at - lookback, run_started_at)`, calculated once per run: include
+  the lookback start and exclude the run start.
+- Preserve each observed source revision under a stable paper identity and record
+  repeat observations separately. This does not require fetching unseen historical
+  revisions.
+- Match any configured category AND any configured keyword, searching keywords
+  in titles and abstracts. Either group may be used alone.
+
+The agreed scope and validation are recorded in `docs/milestones.md`.
 
 ## Future scope
 
@@ -146,18 +168,14 @@ or introducing speculative frameworks.
 
 ## Decisions still to resolve
 
-- Configuration file format and default configuration/data locations. TOML is a
-  proposal, not a settled requirement.
-- Initial storage backend and migration approach.
 - Initial CLI agent adapter, supported invocation contract, and prerequisites.
 - Numerical score range and calibration guidance shared with user ratings.
-- Default lookback windows, timestamp semantics, and timezone handling.
+- Digest lookback defaults and timestamp semantics.
 - Whether digests repeat previously presented papers, and how explicit time-window
   requests interact with that policy.
-- Profile selection defaults when multiple profiles exist.
-- Initial output writers; Markdown and JSON are proposed.
+- Initial digest output writers; Markdown and JSON are proposed.
 - Evaluation batching, retries, caching/reuse, and partial-run behavior.
-- Source revision handling and cross-source deduplication.
+- Cross-source deduplication and any future retrieval of historical revisions.
 
 ## Development guidance
 

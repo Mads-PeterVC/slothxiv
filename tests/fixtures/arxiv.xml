@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+      xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/"
+      xmlns:arxiv="http://arxiv.org/schemas/atom">
+  <id>https://arxiv.org/api/sample</id>
+  <title>Fixture query</title>
+  <opensearch:totalResults>1</opensearch:totalResults>
+  <opensearch:startIndex>0</opensearch:startIndex>
+  <opensearch:itemsPerPage>1</opensearch:itemsPerPage>
+  <entry>
+    <id>http://arxiv.org/abs/2611.00001v1</id>
+    <updated>2026-11-15T12:00:00Z</updated>
+    <published>2025-01-01T09:00:00Z</published>
+    <title> Graph learning
+      for research </title>
+    <summary>We study graph learning &amp; reproducibility.</summary>
+    <author><name>Ada Example</name><arxiv:affiliation>Example University</arxiv:affiliation></author>
+    <author><name>Bo Sample</name></author>
+    <link href="http://arxiv.org/abs/2611.00001v1" rel="alternate" type="text/html" />
+    <link href="https://arxiv.org/pdf/2611.00001v1" title="pdf" type="application/pdf" />
+    <category term="cs.LG" />
+    <category term="stat.ML" />
+    <arxiv:primary_category term="cs.LG" />
+    <arxiv:comment>12 pages</arxiv:comment>
+    <arxiv:doi>10.0000/example</arxiv:doi>
+  </entry>
+</feed>

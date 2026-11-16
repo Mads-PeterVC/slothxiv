@@ -1,12 +1,12 @@
 # slothxiv
 
-slothxiv is a Python tool being designed to discover research papers, rank them
-against configurable research profiles using an LLM, and produce structured
-digests. The project is currently in design; the application is still a skeleton.
+slothxiv retrieves arXiv papers for named research profiles and preserves papers,
+revisions, and retrieval history in SQLite. The `scrape` command and matching
+library workflow are implemented. See the [retrieval guide](retrieval.md) for
+installation, configuration, and use.
 
-The initial workflow will use arXiv metadata and abstracts, headless LLM CLI
-agents, and persistent retrieval and evaluation history. Paper sources and agent
-implementations will sit behind separate interfaces.
+LLM evaluation, ranking, and structured digest generation are planned for later
+milestones. Full-paper evaluation and a GUI are outside the initial scope.
 
 ## Project memory
 

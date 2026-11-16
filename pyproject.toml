@@ -1,13 +1,17 @@
 [project]
 name = "slothxiv"
 version = "0.1.0"
-description = "Add your description here"
+description = "Retrieve research papers for named profiles and preserve discovery history"
 readme = "README.md"
 authors = [
     { name = "Mads-Peter Verner Christiansen", email = "mpvc@bio.aau.dk" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "defusedxml>=0.7,<1",
+    "platformdirs>=4,<5",
+    "pydantic>=2.12,<3",
+]
 
 [project.scripts]
 slothxiv = "slothxiv:main"

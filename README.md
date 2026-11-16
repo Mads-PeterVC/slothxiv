@@ -1,7 +1,29 @@
 # slothxiv
 
-A Python tool being designed to find research papers, rank them against research
-profiles using an LLM, and generate digests. The application is currently a skeleton.
+A Python tool for retrieving research papers for named profiles and preserving
+discovery history in SQLite. LLM ranking and digest generation are planned but
+not yet implemented.
+
+## Retrieve papers
+
+```sh
+uv tool install .
+slothxiv scrape --config /absolute/path/to/config.toml --profile graphs
+```
+
+Example configuration:
+
+```toml
+[profiles.graphs]
+lookback_days = 2
+
+[profiles.graphs.arxiv]
+categories = ["cs.LG"]
+keywords = ["graph learning"]
+```
+
+See the [retrieval guide](docs/retrieval.md) for default locations, path overrides,
+query and window semantics, history, failures, and library usage.
 
 Project requirements and agent instructions are in [AGENTS.md](AGENTS.md).
 Development context is recorded in the [development log](docs/development-log.md).
